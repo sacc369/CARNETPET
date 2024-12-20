@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carnet de Identificación para Mascotas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+        }
+        .card {
+            width: 300px;
+            height: 450px;
+            margin: 20px auto;
+            position: relative;
+            border: 5px solid #4CAF50;
+            border-radius: 15px;
+            overflow: hidden;
+            background: url('https://i.ibb.co/fnf6rz1/Sin-t-tulo-Flyers-Vertical.jpg') no-repeat center center/cover;
+        }
+        .header {
+            background-color: rgba(76, 175, 80, 0.9);
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .photo-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            border: 3px solid #4CAF50;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .info {
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.6;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            margin: 0 20px;
+        }
+        .info span {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .barcode {
+            margin: 10px auto;
+            width: 80%;
+            height: 40px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        input[type="text"], input[type="file"], button {
+            margin: 5px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <h1>Genera el Carnet de tu Mascota</h1>
+    <div class="card" id="card">
+        <div class="header">Carnet de Identificación</div>
+        <div class="photo-container" id="photoContainer">
+            <img id="petImage" src="" alt="Foto de la mascota">
+        </div>
+        <div class="info" id="info">
+            <p><span>Nombre:</span> [Nombre de tu mascota]</p>
+            <p><span>Dueño:</span> [Nombre del dueño]</p>
+            <p><span>Raza:</span> [Raza de la mascota]</p>
+            <p><span>Teléfono:</span> [Teléfono de contacto]</p>
+        </div>
+        <div class="barcode" id="barcode">ID: [Número de Identificación]</div>
+    </div>
+
+    <div>
+        <input type="text" id="petName" placeholder="Nombre de la mascota">
+        <input type="text" id="ownerName" placeholder="Nombre del dueño">
+        <input type="text" id="petBreed" placeholder="Raza de la mascota">
+        <input type="text" id="contactNumber" placeholder="Teléfono de contacto">
+        <input type="file" id="photoInput" accept="image/*" onchange="updatePhoto()">
+        <button onclick="generateCard()">Generar Carnet</button>
+        <button onclick="downloadCard()">Descargar Carnet</button>
+    </div>
+
+    <script>
+        const card = document.getElementById('card');
+        const petImage = document.getElementById('petImage');
+        const info = document.getElementById('info');
+        const barcode = document.getElementById('barcode');
+
+        function generateCard() {
+            const petName = document.getElementById('petName').value.trim();
+            const ownerName = document.getElementById('ownerName').value.trim();
+            const petBreed = document.getElementById('petBreed').value.trim();
+            const contactNumber = document.getElementById('contactNumber').value.trim();
+
+            const idNumber = `ID-${Math.floor(100000 + Math.random() * 900000)}`;
+
+            info.innerHTML = ` 
+                <p><span>Nombre:</span> ${petName || '[Nombre de tu mascota]'}</p>
+                <p><span>Dueño:</span> ${ownerName || '[Nombre del dueño]'}</p>
+                <p><span>Raza:</span> ${petBreed || '[Raza de la mascota]'}</p>
+                <p><span>Teléfono:</span> ${contactNumber || '[Teléfono de contacto]'}</p>
+            `;
+            barcode.textContent = idNumber;
+        }
+
+        function updatePhoto() {
+            const photoInput = document.getElementById('photoInput');
+            const file = photoInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    petImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function downloadCard() {
+            html2canvas(card, {
+                scale: 2,
+                backgroundColor: null,
+                useCORS: true,  // Esto asegura que las imágenes de fondo externas se carguen correctamente
+                allowTaint: true, // Permite que imágenes externas sean incluidas
+                logging: true, // Para depurar posibles problemas
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'carnet_mascota.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(error => {
+                alert("Ocurrió un problema al generar la descarga. Intenta nuevamente.");
+                console.error(error);
+            });
+        }
+    </script>
+</body>
+</html>
